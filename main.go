@@ -16,7 +16,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"time"
 	t "uprobe/tracer"
 )
 
@@ -35,11 +34,11 @@ func main() {
 	}
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, os.Kill)
-	fmt.Printf("%s\t\t%s\t%s\n", "PID", "DURATION", "URL")
+	fmt.Printf("%s\t%s\n", "PID", "URL")
 	for {
 		select {
 		case req := <-ch:
-			fmt.Printf("%d\t\t%s\t%s\n", req.Pid, time.Duration(req.Delta), req.URL)
+			fmt.Printf("%d\t%s\n", req.Pid, req.URL)
 		case <-sig:
 			tracer.Close()
 			return

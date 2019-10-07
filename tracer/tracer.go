@@ -21,7 +21,6 @@ import (
 const (
 	httpGetSymbol    = "net/http.Get"
 	uprobeHttpGet    = "__uprobe_http_get"
-	uretprobeHttpGet = "__uretprobe_http_get"
 )
 
 const source string = `
@@ -31,19 +30,16 @@ const source string = `
 
 struct http_req {
 	u32 pid;
-	u64 delta;
 	unsigned short len;
 	char url[256];
 }__attribute__((packed));
 
-BPF_HASH(reqs, u32, struct http_req);
-BPF_PERF_OUTPUT(output);
+BPF_PERF_OUTPUT(reqs);
 
 int __uprobe_http_get(struct pt_regs *ctx) {
     u32 pid = bpf_get_current_pid_tgid();
     struct http_req req = {
         .pid = pid,
-        .delta = bpf_ktime_get_ns()
     };
 
     char *url;
@@ -52,28 +48,7 @@ int __uprobe_http_get(struct pt_regs *ctx) {
     bpf_probe_read(&req.len, sizeof(req.len), SP_OFFSET(2));
     bpf_probe_read_str(&req.url, sizeof(req.url), (void *)url);
 
-    reqs.update(&pid, &req);
-
-    return 0;
-}
-
-int __uretprobe_http_get(struct pt_regs *ctx) {
-    struct http_req *req;
-    struct http_req req_copy = {};
-    u32 pid = bpf_get_current_pid_tgid();
-
-    req = reqs.lookup(&pid);
-
-    if (req == 0)
-        return 0;
-    req_copy.delta = bpf_ktime_get_ns() - req->delta;
-    req_copy.pid = pid;
-    req_copy.len = req->len;
-
-    bpf_probe_read(&req_copy.url, sizeof(req_copy.url), req->url);
-
-    output.perf_submit(ctx, &req_copy, sizeof(req_copy));
-    reqs.delete(&pid);
+    reqs.perf_submit(ctx, &req, sizeof(req));
 
     return 0;
 }
@@ -86,14 +61,12 @@ type UprobeHttpTracer struct {
 
 type httpReq struct {
 	Pid    uint32
-	Delta  uint64
 	Length uint16
 	URL    [256]byte
 }
 
 type HttpReq struct {
 	Pid   uint32
-	Delta uint64
 	URL   string
 }
 
@@ -110,18 +83,11 @@ func (t *UprobeHttpTracer) Attach(name string) (chan HttpReq, error) {
 	if err != nil {
 		return nil, fmt.Errorf("couldn't load __uprobe_http_get: %v", err)
 	}
-	uretprobe, err := t.mod.LoadUprobe(uretprobeHttpGet)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't load __uretprobe_http_get: %v", err)
-	}
 	if err = t.mod.AttachUprobe(name, httpGetSymbol, uprobe, -1); err != nil {
 		return nil, fmt.Errorf("failed to attach __uprobe_http_get: %v", err)
 	}
-	if err = t.mod.AttachUretprobe(name, httpGetSymbol, uretprobe, -1); err != nil {
-		return nil, fmt.Errorf("failed to attach __uretprobe_http_get: %v", err)
-	}
 
-	table := bpf.NewTable(t.mod.TableId("output"), t.mod)
+	table := bpf.NewTable(t.mod.TableId("reqs"), t.mod)
 	ch := make(chan []byte)
 
 	perfMap, err := bpf.InitPerfMap(table, ch)
@@ -141,7 +107,6 @@ func (t *UprobeHttpTracer) Attach(name string) (chan HttpReq, error) {
 			}
 			reqc <- HttpReq{
 				Pid:   req.Pid,
-				Delta: req.Delta,
 				URL:   string(req.URL[:])[0:req.Length],
 			}
 		}
