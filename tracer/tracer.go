@@ -40,11 +40,11 @@ BPF_HASH(reqs, u32, struct http_req);
 BPF_PERF_OUTPUT(output);
 
 int __uprobe_http_get(struct pt_regs *ctx) {
-	u32 pid = bpf_get_current_pid_tgid();
-	struct http_req req = {
-		.pid = pid,
-		.delta = bpf_ktime_get_ns()
-	};
+    u32 pid = bpf_get_current_pid_tgid();
+    struct http_req req = {
+        .pid = pid,
+        .delta = bpf_ktime_get_ns()
+    };
 
     char *url;
 
@@ -52,7 +52,7 @@ int __uprobe_http_get(struct pt_regs *ctx) {
     bpf_probe_read(&req.len, sizeof(req.len), SP_OFFSET(2));
     bpf_probe_read_str(&req.url, sizeof(req.url), (void *)url);
 
-	reqs.update(&pid, &req);
+    reqs.update(&pid, &req);
 
     return 0;
 }
@@ -70,7 +70,7 @@ int __uretprobe_http_get(struct pt_regs *ctx) {
     req_copy.pid = pid;
     req_copy.len = req->len;
 
-	bpf_probe_read(&req_copy.url, sizeof(req_copy.url), req->url);
+    bpf_probe_read(&req_copy.url, sizeof(req_copy.url), req->url);
 
     output.perf_submit(ctx, &req_copy, sizeof(req_copy));
     reqs.delete(&pid);
