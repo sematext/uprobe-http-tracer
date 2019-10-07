@@ -1,0 +1,6 @@
+github.com/iovisor/bcc v0.11.0 h1:MrHVuhQ1jGKyq9GHU6A1SAkwBe0q8NqN2LILXRLVYJ0=
+github.com/iovisor/bcc v0.11.0/go.mod h1:sO4La67CD4WoOEEALN2a9DJO3Ri1g4OZC43WDuY2GUw=
+github.com/iovisor/gobpf v0.0.0-20190827113749-5e47cda1484e h1:yElUy1h1s76Ld2usPb26W2SQ1GydhfIIsxoHIVkREyQ=
+github.com/iovisor/gobpf v0.0.0-20190827113749-5e47cda1484e/go.mod h1:+5U5qu5UOu8YJ5oHVLvWKH7/Dr5QNHU7mZ2RfPEeXg8=
+github.com/rabbitstack/gobpf v0.0.0-20191004180539-4a49024f25de h1:kIubCmxr0AinBbJuiPjVbJC66gHHz7krfYqDx/QMZ5s=
+github.com/rabbitstack/gobpf v0.0.0-20191004180539-4a49024f25de/go.mod h1:/HbqAvyD/Xv77MwdmJgFNWEiAA/lz46v8+Ou73EvgJQ=
