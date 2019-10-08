@@ -1,6 +1,6 @@
 # uprobe-http-tracer
 
-Captures calls to `http.Get` function and grabs the full URL from the stack area.
+Captures all the calls to `http.Get` function and grabs the full URL from the stack area.
 
 ## Requirements
 
