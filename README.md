@@ -5,7 +5,7 @@ Captures all the calls to `http.Get` function and grabs the full URL from the st
 ## Requirements
 
 To build this tool you have to satisify the following requirements:
-- have a modern Linux kernel (>4.12) that supports uprobes
+- have a Linux kernel that supports uprobes
 - linux headers
 - clang
 - LLVM
