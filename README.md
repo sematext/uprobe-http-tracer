@@ -14,13 +14,13 @@ To build this tool you have to satisify the following requirements:
 
 ## Usage
 
-First build the tool:
+1. Build the tool
 
 ```
 go build -o uprobe-http-tracer main.go
 ```
 
-Write a simple program:
+2. Write a simple program
 
 ```
 vi /tmp/main.go
@@ -39,7 +39,7 @@ func main() {
 go build /tmp/main.go
 ```
 
-See it in action:
+3. See it in action
 
 ```
 sudo ./uprobe-http-tracer --bin=/tmp/main
