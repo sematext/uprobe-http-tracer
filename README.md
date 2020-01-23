@@ -1,6 +1,6 @@
 # uprobe-http-tracer
 
-Captures all the calls to `http.Get` function and grabs the full URL from the stack area.
+Captures all the calls to `http.Get` function and grabs the full URL from the stack area. For more details head to the [blog post](https://sematext.com/blog/ebpf-userland-apps/).
 
 ## Requirements
 
